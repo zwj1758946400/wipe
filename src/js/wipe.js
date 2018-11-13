@@ -8,6 +8,30 @@ var moveY;
 var isMouseDown=false;
 //表示鼠标的状态，是否按下false,按下true
 
+//device保存设备类型，如果是移动端则为true，pc端为false
+var device = (/android|webos|iPhone|ipad|ipod|blackberry|iemobile|opera mini/i.test(navigator.userAgent.toLowerCase()));
+console.log(navigator.userAgent);
+console.log(device);
+var clickEvtName=device ? "touchstart" : "mousedown";
+var moveEvt=device ? "touchstart" : "mousemove";
+var endEvt=device ? "touchstart" : "mouseup";
+
+//在canvas画布上监听自定义事件"clickEvtName",调用drawPoint函数
+cas.addEventListener("clickEvtName",function(evt){
+		isMouseDown=true;
+		var event= evt || window.event;
+		//获取手指在视口的坐标，传递参数到drawPoint
+		moveX=device ? event.touches[0].clientX : event.clientX;
+		moveY=device ? event.touches[0].clientY : event.clientY;
+		drawarc(context,moveX,moveY);
+		cas.addEventListener("touchmove",fn1,false);
+	
+},false);
+
+
+
+
+
 function drawMask(context){
 	context.beginPath();
 	context.fillStyle="#666";
@@ -26,6 +50,7 @@ function drawarc(context,moveX,moveY){
 }
 //在画布上画线
 function drawLine(context,x1,y1,x2,y2){
+	console.log("传递的实参个数"+arguments.length);
 		//保存当前绘图状态
 		context.save();
 		
@@ -41,12 +66,14 @@ function drawLine(context,x1,y1,x2,y2){
 		context.restore();
 	}
 function drawarc(context,moveX,moveY){
+	console.log("传递的实参个数"+arguments.length);
 	context.beginPath();
 	context.fillStyle="red";
 	context.arc(moveX,moveY,radius,0,2*Math.PI);
 	context.fill();
 	context.restore();
 }
+
 //在canvas画布上监听自定义事件"mousedown",调用drawPoint函数
 cas.addEventListener("mousedown",function(evt){
 		isMouseDown=true;
@@ -55,17 +82,44 @@ cas.addEventListener("mousedown",function(evt){
 		moveX=event.clientX;
 		moveY=event.clientY;
 		drawarc(context,moveX,moveY);
-		cas.addEventListener("mousemove",fn1,false);
+		cas.addEventListener("mousemove",fn2,false);
 	
 },false);
+//在canvas画布上监听自定义事件"touchstart",调用drawPoint函数
+cas.addEventListener("touchstart",function(evt){
+		isMouseDown=true;
+		var event= evt || window.event;
+		//获取手指在视口的坐标，传递参数到drawPoint
+		moveX=event.touches[0].clientX;
+		moveY=event.touches[0].clientY;
+		drawarc(context,moveX,moveY);
+		cas.addEventListener("touchmove",fn1,false);
 	
-	
+},false);
+cas.addEventListener("mouseup",fn3,false);	
+cas.addEventListener("touchend",fn3,false);	
+cas.addEventListener("endEvt",fn3,false);	
 	
 
 	function fn1(evt){
 		if(isMouseDown===true){
 			var event= evt || window.event;
 			//获取鼠标在视口的坐标，传递参数到drawPoint
+			event.preventDefault();
+			var	x2=event.touches[0].clientX;
+			var	y2=event.touches[0].clientY;
+			drawLine(context,moveX,moveY,x2,y2);
+			//每次结束的点变成下一次划线的开始点
+			moveX=x2;
+			moveY=y2;
+		}
+	
+	}
+	function fn2(evt){
+		if(isMouseDown===true){
+			var event= evt || window.event;
+			//获取鼠标在视口的坐标，传递参数到drawPoint
+			event.preventDefault();
 			var	x2=event.clientX;
 			var	y2=event.clientY;
 			drawLine(context,moveX,moveY,x2,y2);
@@ -77,14 +131,15 @@ cas.addEventListener("mousedown",function(evt){
 	}
 	
 
-cas.addEventListener("mouseup",function(){
+
+function fn3(){
 	isMouseDown=false;
 	if(getTransparencyPercent(context)>50){
 		alert("超过了50%的面积");
 		clearRect(context);
 	}
 	// cas.removeEventListener("mousemove",fn1,false);
-},false);
+}
 function getTransparencyPercent(context){
 	var t=0;
 	var imgData=context.getImageData(0,0,_w,_h);
