@@ -17,16 +17,32 @@ var moveEvt=device ? "touchstart" : "mousemove";
 var endEvt=device ? "touchstart" : "mouseup";
 
 //在canvas画布上监听自定义事件"clickEvtName",调用drawPoint函数
-cas.addEventListener("clickEvtName",function(evt){
+cas.addEventListener(clickEvtName,function(evt){
 		isMouseDown=true;
 		var event= evt || window.event;
 		//获取手指在视口的坐标，传递参数到drawPoint
 		moveX=device ? event.touches[0].clientX : event.clientX;
 		moveY=device ? event.touches[0].clientY : event.clientY;
-		drawarc(context,moveX,moveY);
-		cas.addEventListener("touchmove",fn1,false);
-	
+		drawT(context,moveX,moveY);
 },false);
+
+
+cas.addEventListener(moveEvt,function(evt){
+		if(isMouseDown===true){
+			var event= evt || window.event;
+			//获取鼠标在视口的坐标，传递参数到drawPoint
+			event.preventDefault();
+			var x2=device ? event.touches[0].clientX : event.clientX;
+			var y2=device ? event.touches[0].clientY : event.clientY;
+			drawT(context,moveX,moveY,x2,y2);
+			//每次结束的点变成下一次划线的开始点
+			moveX=x2;
+			moveY=y2;
+		}
+
+},false);
+
+cas.addEventListener(endEvt,fn3,false);
 
 
 
@@ -74,61 +90,95 @@ function drawarc(context,moveX,moveY){
 	context.restore();
 }
 
+//画点画线
+function drawT(context,x1,y1,x2,y2){
+	if(arguments.length===3){
+		//调用的是画点
+		context.beginPath();
+		context.fillStyle="red";
+		context.arc(moveX,moveY,radius,0,2*Math.PI);
+		context.fill();
+		context.restore();
+	}else if(arguments.length===5){
+		//调用的是 画线
+		//保存当前绘图状态
+		context.save();
+		
+		//向右下方平移
+		context.lineCap="round";
+		context.lineWidth=radius*2;
+		context.beginPath();
+		context.moveTo(x1,y1);
+		context.lineTo(x2,y2);
+		//连接点改成圆角效果
+		context.lineJoin="round";
+		context.stroke();
+		context.restore();
+	}else{
+
+	}
+}
+
+
+
+
+
 //在canvas画布上监听自定义事件"mousedown",调用drawPoint函数
-cas.addEventListener("mousedown",function(evt){
+/*cas.addEventListener("mousedown",function(evt){
 		isMouseDown=true;
 		var event= evt || window.event;
 		//获取鼠标在视口的坐标，传递参数到drawPoint
 		moveX=event.clientX;
 		moveY=event.clientY;
-		drawarc(context,moveX,moveY);
+		drawT(context,moveX,moveY);
 		cas.addEventListener("mousemove",fn2,false);
 	
-},false);
+},false);*/
 //在canvas画布上监听自定义事件"touchstart",调用drawPoint函数
-cas.addEventListener("touchstart",function(evt){
+/*cas.addEventListener("touchstart",function(evt){
 		isMouseDown=true;
 		var event= evt || window.event;
 		//获取手指在视口的坐标，传递参数到drawPoint
 		moveX=event.touches[0].clientX;
 		moveY=event.touches[0].clientY;
-		drawarc(context,moveX,moveY);
+		drawT(context,moveX,moveY);
 		cas.addEventListener("touchmove",fn1,false);
 	
-},false);
-cas.addEventListener("mouseup",fn3,false);	
-cas.addEventListener("touchend",fn3,false);	
-cas.addEventListener("endEvt",fn3,false);	
+},false);*/
+// cas.addEventListener("mouseup",fn3,false);	
+// cas.addEventListener("touchend",fn3,false);	
 	
-
-	function fn1(evt){
+	
+//手指触碰调用的函数
+	/*function fn1(evt){
 		if(isMouseDown===true){
 			var event= evt || window.event;
 			//获取鼠标在视口的坐标，传递参数到drawPoint
 			event.preventDefault();
 			var	x2=event.touches[0].clientX;
 			var	y2=event.touches[0].clientY;
-			drawLine(context,moveX,moveY,x2,y2);
+			drawT(context,moveX,moveY,x2,y2);
 			//每次结束的点变成下一次划线的开始点
 			moveX=x2;
 			moveY=y2;
 		}
 	
-	}
-	function fn2(evt){
+	}*/
+//鼠标事件的调用
+	/*function fn2(evt){
 		if(isMouseDown===true){
 			var event= evt || window.event;
 			//获取鼠标在视口的坐标，传递参数到drawPoint
 			event.preventDefault();
 			var	x2=event.clientX;
 			var	y2=event.clientY;
-			drawLine(context,moveX,moveY,x2,y2);
+			drawT(context,moveX,moveY,x2,y2);
 			//每次结束的点变成下一次划线的开始点
 			moveX=x2;
 			moveY=y2;
 		}
 	
-	}
+	}*/
 	
 
 
