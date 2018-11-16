@@ -41,24 +41,31 @@ module.exports=function(grunt){
 		},
 		copy:{
 			js:{expand:true, cwd:'dist/js',src:'*.min.js',dest:'sample/js/'}
-		}
+		},
 		replace:{
 			example:{
-				src:['saple/js/index.html'],
+				src:['sample/index.html'],
 				overwrite:true,
-				replacements:[{
-					from:/wipe-\.\.min\.js/g,
-					to:'wipe-<%= pkg.version%>.min.js'
-				}]
+				replacements:[
+					{
+						from:/\d[\.]\d[\.]\d/g,
+						to:'wipe-<%= pkg.version%>.min'
+					},
+					{
+						from:/hello\.css/g,
+						to:'hello.min.css'
+					}
+				]
 			}
 		}
 	});
 	//告诉grunt需要使用插件
 	grunt.loadNpmTasks('grunt-contrib-uglify');
-	grunt.loadNpmTasks('grunt-contrib-cssmin');
+	// grunt.loadNpmTasks('grunt-contrib-cssmin');
 	grunt.loadNpmTasks('grunt-contrib-clean');
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-contrib-copy');
+	grunt.loadNpmTasks('grunt-text-replace');
 	//告诉grunt当我们输入grunt命令后需要做些什么，有先后顺序
-	grunt.registerTask("default",['jshint','copy','clean','uglify']);
+	grunt.registerTask('default',['jshint','copy','clean','uglify','replace']);
 }
